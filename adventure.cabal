@@ -19,5 +19,6 @@ executable adventure
   ghc-options:       -Wall
   main-is:           Main.hs
   -- other-modules:       
-  build-depends:     base ==4.6.*
+  build-depends:     base ==4.6.*,
+                     directory
   hs-source-dirs:    src
