@@ -13,7 +13,7 @@ data Creature = Creature {
 
 getCreature :: IO Creature
 getCreature = do
-    putStrLn "what is your name? "
+    putStrLn "What is your name? "
     playerName <- getLine
     return (Creature playerName)
 
@@ -23,41 +23,50 @@ writeCreature filename creature = do
     hPrint h creature
     hClose h
 
-loadCreature :: String -> IO Creature
+loadCreature :: String -> IO (Maybe Creature)
 loadCreature filename = do
-    h <- openFile filename ReadMode
-    playerLine <- hGetLine h
-    let player = read playerLine
-    hClose h
-    return player
-
-datafile :: String
-datafile = "data.txt"
-
-getPlayer :: IO Creature
-getPlayer = do
     isFile <- doesFileExist datafile
-    player <- if isFile
-        then
-            loadCreature datafile
+    if isFile 
+        then do
+            h <- openFile filename ReadMode
+            playerLine <- hGetLine h
+            let player = readMaybe playerLine
+            hClose h
+            return player
         else
-            getCreature
-    writeCreature datafile player
-    return player
+            return Nothing
 
 -- main menu
 
 greet :: IO ()
 greet = putStrLn "hello world"
 
+resetData :: String -> IO ()
+resetData = removeFile
+
 mainMenu :: Menu.Menu
-mainMenu = getMenu [ ("Greet me", greet ) ]
+mainMenu = getMenu
+    [ ("Greet me", greet )
+    , ("Reset all user data", resetData datafile)
+    ]
 
 -- main
+
+datafile :: String
+datafile = "data.txt"
+
 main :: IO ()
 main = do
-    player <- getPlayer
-    putStrLn ("Hello, " ++ name player)
+    player <- loadCreature datafile
+    player <- case player of
+        Just p -> do
+            putStrLn $ "Welcome back to Adventure, " ++ name p
+            return p
+        Nothing -> do
+            putStrLn "Welcome to Adventure!"
+            p <- getCreature
+            writeCreature datafile p
+            return p
     runMenu mainMenu
     putStrLn "bye!"
 
