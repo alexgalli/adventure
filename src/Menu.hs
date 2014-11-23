@@ -10,31 +10,27 @@ import Text.Read
 
 type MenuItem     = (String, IO ())
 type MenuListItem = (Integer, MenuItem)
-type Menu         = [MenuListItem]
+data Menu         = Menu [MenuListItem]
+
+instance Show Menu where
+    show (Menu items) = intercalate "\n" $ map showItem items
+        where showItem (ix, (text, _)) = show ix ++ ". " ++ text
 
 getMenu :: [MenuItem] -> Menu
-getMenu = zip [1..]
-
-showItem :: MenuListItem -> String
-showItem (ix, (text, _)) = show ix ++ ". " ++ text
-
-showMenu :: Menu -> String
-showMenu menu = intercalate "\n" $ map showItem menu
-
-printMenu :: Menu -> IO ()
-printMenu menu = putStrLn $ showMenu menu
+getMenu items = Menu $ zip [1..] items
 
 getItem :: Maybe Int -> Menu -> Maybe MenuItem
 getItem Nothing _ = Nothing
-getItem (Just ix) menu
+getItem (Just ix) (Menu items)
     | ix <= 0 = Nothing
-    | ix > length menu = Nothing
-    | otherwise = Just (snd (menu !! (ix - 1)))
+    | ix > length items = Nothing
+    | otherwise = Just (snd (items !! (ix - 1)))
 
 runMenu :: Menu -> IO ()
 runMenu menu = do
-    printMenu menu
-    let count = length menu
+    print menu
+    let (Menu items) = menu
+    let count = length items
     if count > 1
         then putStr $ "Choose [1-" ++ show count ++ "]: "
         else putStr "Choose [1]: "
