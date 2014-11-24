@@ -9,14 +9,10 @@ defaultDatafile :: String
 defaultDatafile = "data.txt"
 
 main :: IO ()
-main = do
-    world <- startWorld defaultDatafile
-    -- greeting
-    world2 <- openingGreeting world
-    -- main menu
-    world3 <- runMenu mainMenu world2
-    -- save and quit
-    exitAdventure world3
+main = startWorld defaultDatafile
+    >>= openingGreeting
+    >>= runMenu mainMenu
+    >>= exitAdventure
 
 -- actions
 startWorld :: String -> IO World
