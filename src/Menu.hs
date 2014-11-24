@@ -44,14 +44,9 @@ prompt menu = do
 
 runMenu :: Menu a -> a -> IO a
 runMenu menu a = do
-    print "entering"
     item <- prompt menu
     case item of
         MenuItem _ _ -> do
             b <- action item a
-            print "hi"
             runMenu menu b
-        Close _ -> do
-            print "here"
-            -- TODO - figure out why this isn't returning (killing the loop)
-            return a
+        Close _ -> return a

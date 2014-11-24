@@ -6,6 +6,8 @@ module World (
     newWorld,
     setDataFile,
     setPlayer,
+    addEnemy,
+    clearEnemies,
     saveWorld,
     loadWorld
 ) where
@@ -33,6 +35,12 @@ setDataFile filename world = world { datafile = filename }
 
 setPlayer :: Creature -> World -> World
 setPlayer creature world = world { player = Just creature }
+
+addEnemy :: Creature -> World -> World
+addEnemy creature world = world { enemies = creature : enemies world }
+
+clearEnemies :: World -> World
+clearEnemies world = world { enemies = [] }
 
 -- file I/O
 saveWorld :: World -> IO World
