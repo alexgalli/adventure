@@ -1,10 +1,12 @@
 module World (
     World,
-    new,
+    player,
+    enemies,
+    newWorld,
     setDataFile,
     setPlayer,
-    save,
-    load
+    saveWorld,
+    loadWorld
 ) where
 
 import System.Directory
@@ -12,41 +14,39 @@ import System.IO
 import Creature
 
 data World = World {
-    datafile :: Maybe String,
+    datafile :: String,
     player   :: Maybe Creature,
     enemies  :: [Creature]
 } deriving (Show, Read)
 
-new :: World
-new = World {
-    datafile = Nothing,
+newWorld :: String -> World
+newWorld filename = World {
+    datafile = filename,
     player = Nothing,
     enemies = []
 }
 
 setDataFile :: String -> World -> World
-setDataFile filename world = world { datafile = Just filename }
+setDataFile filename world = world { datafile = filename }
 
 setPlayer :: Creature -> World -> World
 setPlayer creature world = world { player = Just creature }
 
-save :: World -> IO ()
-save world = do
-    filename <- case datafile world of
-        Just f -> return f
-        Nothing -> error "Datafile not specified"
-    h <- openFile filename WriteMode
+saveWorld :: World -> IO ()
+saveWorld world = do
+    h <- openFile (datafile world) WriteMode
     hPrint h world
     hClose h
 
-load :: String -> IO World
-load filename = do
+loadWorld :: String -> IO (Maybe World)
+loadWorld filename = do
     isFile <- doesFileExist filename
     if isFile
         then do
             hdl <- openFile filename ReadMode
-            contents <- hGetContents hdl
+            contents <- hGetLine hdl
+            print contents
             hClose hdl
-            return $ read contents
+            return $ Just (read contents)
         else
-            error "Could not find specified datafile"
+            return Nothing

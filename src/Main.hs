@@ -6,11 +6,14 @@ import Text.Read
 
 import Creature
 import Menu
+import World
 
 -- main menu
 
 greet :: IO ()
 greet = putStrLn "hello world"
+
+--setPlayerName :: String -> IO (World)
 
 resetData :: String -> IO ()
 resetData = removeFile
@@ -26,11 +29,13 @@ mainMenu = getMenu
 datafile :: String
 datafile = "data.txt"
 
--- TODO create world state object, pass it to runMenu to provide context to menu items
-
 main :: IO ()
 main = do
-    player <- loadCreature datafile
+    world <- loadWorld datafile
+    world <- case world of
+        Just w -> return w
+        Nothing -> return $ newWorld datafile
+    player <- return $ player world
     player <- case player of
         Just p -> do
             putStrLn $ "Welcome back to Adventure, " ++ name p
@@ -38,7 +43,8 @@ main = do
         Nothing -> do
             putStrLn "Welcome to Adventure!"
             p <- getCreature
-            writeCreature datafile p
+            world <- return $ setPlayer p world
+            saveWorld world
             return p
     runMenu mainMenu
     putStrLn "bye!"
