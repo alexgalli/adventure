@@ -8,26 +8,26 @@ module Menu (
 import Data.List
 import Text.Read
 
-type MenuItem     = (String, IO ())
-type MenuListItem = (Integer, MenuItem)
-data Menu         = Menu [MenuListItem]
+type MenuItem a     = (String, a -> IO a)
+type MenuListItem a = (Integer, MenuItem a)
+data Menu a         = Menu [MenuListItem a]
 
-instance Show Menu where
+instance Show (Menu a) where
     show (Menu items) = intercalate "\n" $ map showItem items
         where showItem (ix, (text, _)) = show ix ++ ". " ++ text
 
-getMenu :: [MenuItem] -> Menu
+getMenu :: [MenuItem a] -> Menu a
 getMenu items = Menu $ zip [1..] items
 
-getItem :: Maybe Int -> Menu -> Maybe MenuItem
+getItem :: Maybe Int -> Menu a -> Maybe (MenuItem a)
 getItem Nothing _ = Nothing
 getItem (Just ix) (Menu items)
     | ix <= 0 = Nothing
     | ix > length items = Nothing
     | otherwise = Just (snd (items !! (ix - 1)))
 
-runMenu :: Menu -> IO ()
-runMenu menu = do
+runMenu :: Menu a -> a -> IO a
+runMenu menu a = do
     print menu
     let (Menu items) = menu
     let count = length items
@@ -38,7 +38,7 @@ runMenu menu = do
     case getItem (readMaybe ln) menu of
         Just li -> do
             putStrLn $ "You chose " ++ fst li
-            snd li
+            snd li a
         Nothing -> do
             putStrLn $ "'" ++ ln ++ "' is not a valid selection."
-            runMenu menu
+            runMenu menu a

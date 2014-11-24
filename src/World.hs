@@ -1,5 +1,6 @@
 module World (
     World,
+    datafile,
     player,
     enemies,
     newWorld,
@@ -45,7 +46,6 @@ loadWorld filename = do
         then do
             hdl <- openFile filename ReadMode
             contents <- hGetLine hdl
-            print contents
             hClose hdl
             return $ Just (read contents)
         else

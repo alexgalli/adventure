@@ -1,8 +1,5 @@
 import Control.Exception
-import Data.List
 import System.Directory
-import System.IO
-import Text.Read
 
 import Creature
 import Menu
@@ -10,42 +7,54 @@ import World
 
 -- main menu
 
-greet :: IO ()
-greet = putStrLn "hello world"
+greet :: World -> IO World
+greet world = do 
+    case player world of
+        Just p -> putStrLn $ "Hello there, " ++ name p
+        Nothing -> putStrLn "Hello, stranger."
+    return world
 
---setPlayerName :: String -> IO (World)
+setPlayerName :: World -> IO (World)
+setPlayerName world = do
+    p <- getCreature
+    return $ setPlayer p world
 
-resetData :: String -> IO ()
-resetData = removeFile
+resetData :: World -> IO (World)
+resetData world = do
+    let df = datafile world
+    removeFile $ df
+    return $ newWorld df
 
-mainMenu :: Menu.Menu
+mainMenu :: Menu.Menu World
 mainMenu = getMenu
     [ ("Greet me", greet )
-    , ("Reset all user data", resetData datafile)
+    , ("Set player name", setPlayerName)
+    , ("Reset all user data", resetData)
     ]
 
 -- main
 
-datafile :: String
-datafile = "data.txt"
+defaultDatafile :: String
+defaultDatafile = "data.txt"
 
 main :: IO ()
 main = do
-    world <- loadWorld datafile
+    -- load/create world
+    world <- loadWorld defaultDatafile
     world <- case world of
         Just w -> return w
-        Nothing -> return $ newWorld datafile
-    player <- return $ player world
-    player <- case player of
-        Just p -> do
-            putStrLn $ "Welcome back to Adventure, " ++ name p
-            return p
+        Nothing -> return $ newWorld defaultDatafile
+    -- greeting
+    case player world of
+        Just p -> putStrLn $ "Welcome back to Adventure, " ++ name p
         Nothing -> do
             putStrLn "Welcome to Adventure!"
+            -- create player and save
             p <- getCreature
             world <- return $ setPlayer p world
             saveWorld world
-            return p
-    runMenu mainMenu
+    -- main menu
+    world <- runMenu mainMenu world
+    -- save and quit
+    saveWorld world
     putStrLn "bye!"
-
