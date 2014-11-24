@@ -8,7 +8,7 @@ import World
 
 enemyMenu :: World -> Menu.Menu (Maybe Creature)
 enemyMenu world =
-    getMenu menuItems
+    getMenu (const "Select enemy to target") menuItems
     where
         getMenuItemForEnemy enemy = CloseMenuItem (name enemy) (\_ -> return (Just enemy))
         enemyMenuItems = map getMenuItemForEnemy (enemies world)
@@ -19,19 +19,24 @@ targetEnemy world = do
     enemy <- runMenu (enemyMenu world) Nothing
     case enemy of
         Just e -> do
-            putStrLn $ "Now targetting" ++ name e
+            putStrLn $ "Now targetting " ++ name e
             return $ setTarget e world
         Nothing -> return world
 
+showTarget :: World -> String
+showTarget world = 
+    case target world of
+        Just e -> "Currently targetting " ++ name e
+        Nothing -> "Not targetting anyone"
+
 listTarget :: World -> IO World
 listTarget world = do
-    case target world of
-        Just e -> putStrLn $ "Currently targetting " ++ name e
-        Nothing -> putStrLn "Not targetting anyone"
+    putStrLn $ showTarget world
     return world
 
 gameMenu :: Menu.Menu World
 gameMenu = getMenu
+    showTarget
     [ LoopMenuItem "Target a monster" targetEnemy
     , LoopMenuItem "Describe target" listTarget
     , Close "Return to main menu"

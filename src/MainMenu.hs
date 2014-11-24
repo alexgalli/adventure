@@ -17,6 +17,7 @@ greet world = do
 
 mainMenu :: Menu.Menu World
 mainMenu = getMenu
+    (const "Main Menu")
     [ LoopMenuItem "Greet me" greet
     , LoopMenuItem "Enter game" (runMenu gameMenu)
     , LoopMenuItem "Enter admin mode" (runMenu adminMenu)

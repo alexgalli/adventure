@@ -8,34 +8,40 @@ module Menu (
 import Data.List
 import Text.Read
 
+type MenuAction a = a -> IO a
+
 data MenuItem a
-    = LoopMenuItem { description :: String, action :: a -> IO a}
-    | CloseMenuItem { description :: String, action :: a -> IO a}
+    = LoopMenuItem { description :: String, action :: MenuAction a}
+    | CloseMenuItem { description :: String, action :: MenuAction a}
     | Close { description :: String }
 
-data Menu a = Menu [(Integer, MenuItem a)]
+data Menu a = Menu {
+    showTitle :: a -> String,
+    items :: [(Integer, MenuItem a)]
+}
 
 instance Show (Menu a) where
-    show (Menu items) = intercalate "\n" $ map showItem items
+    show menu = intercalate "\n" $ map showItem (items menu)
         where showItem (ix, item) = show ix ++ ". " ++ description item
 
-getMenu :: [MenuItem a] -> Menu a
-getMenu items = Menu $ zip [1..] items
+getMenu :: (a -> String) -> [MenuItem a] -> Menu a
+getMenu st i = Menu st $ zip [1..] i
 
 getItem :: Maybe Int -> Menu a -> Maybe (MenuItem a)
 getItem Nothing _ = Nothing
-getItem (Just ix) (Menu items)
+getItem (Just ix) menu
     | ix <= 0 = Nothing
-    | ix > length items = Nothing
-    | otherwise = Just (snd (items !! (ix - 1)))
+    | ix > length (items menu) = Nothing
+    | otherwise = Just (snd (items menu !! (ix - 1)))
 
 -- user interface
 
-prompt :: Menu a -> IO (MenuItem a)
-prompt menu = do
+prompt :: Menu a -> a -> IO (MenuItem a)
+prompt menu a = do
+    putStrLn ""
+    putStrLn $ showTitle menu a
     print menu
-    let (Menu items) = menu
-    let count = length items
+    let count = length (items menu)
     if count > 1
         then putStr $ "Choose [1-" ++ show count ++ "]: "
         else putStr "Choose [1]: "
@@ -44,11 +50,12 @@ prompt menu = do
         Just item -> return item
         Nothing -> do
             putStrLn $ "'" ++ input ++ "' is not a valid selection."
-            prompt menu
+            prompt menu a
 
 runMenu :: Menu a -> a -> IO a
 runMenu menu a = do
-    item <- prompt menu
+    item <- prompt menu a
+    putStrLn ""
     case item of
         LoopMenuItem {} -> do
             b <- action item a
