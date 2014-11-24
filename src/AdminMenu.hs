@@ -38,10 +38,10 @@ resetData world = do
 
 adminMenu :: Menu.Menu World
 adminMenu = getMenu
-    [ MenuItem "Set player name" setPlayerName
-    , MenuItem "Add a new enemy" addNewEnemy
-    , MenuItem "List enemies" listEnemies
-    , MenuItem "Clear all enemies" clearAllEnemies
-    , MenuItem "Reset all user data" resetData
+    [ LoopMenuItem "Set player name" setPlayerName
+    , LoopMenuItem "Add a new enemy" addNewEnemy
+    , LoopMenuItem "List enemies" listEnemies
+    , LoopMenuItem "Clear all enemies" clearAllEnemies
+    , LoopMenuItem "Reset all user data" resetData
     , Close "Exit"
     ]

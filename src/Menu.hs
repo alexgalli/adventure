@@ -1,6 +1,6 @@
 module Menu (
     Menu,
-    MenuItem(MenuItem, Close),
+    MenuItem(LoopMenuItem, CloseMenuItem, Close),
     getMenu,
     runMenu
 ) where
@@ -8,8 +8,12 @@ module Menu (
 import Data.List
 import Text.Read
 
-data MenuItem a     = MenuItem { description :: String, action :: a -> IO a } | Close { description :: String }
-data Menu a         = Menu [(Integer, MenuItem a)]
+data MenuItem a
+    = LoopMenuItem { description :: String, action :: a -> IO a}
+    | CloseMenuItem { description :: String, action :: a -> IO a}
+    | Close { description :: String }
+
+data Menu a = Menu [(Integer, MenuItem a)]
 
 instance Show (Menu a) where
     show (Menu items) = intercalate "\n" $ map showItem items
@@ -46,7 +50,8 @@ runMenu :: Menu a -> a -> IO a
 runMenu menu a = do
     item <- prompt menu
     case item of
-        MenuItem _ _ -> do
+        LoopMenuItem {} -> do
             b <- action item a
             runMenu menu b
-        Close _ -> return a
+        CloseMenuItem {} -> action item a
+        Close {} -> return a

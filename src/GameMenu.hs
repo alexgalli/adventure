@@ -10,7 +10,7 @@ enemyMenu :: World -> Menu.Menu (Maybe Creature)
 enemyMenu world =
     getMenu menuItems
     where
-        getMenuItemForEnemy enemy = MenuItem (name enemy) (\_ -> return (Just enemy))
+        getMenuItemForEnemy enemy = CloseMenuItem (name enemy) (\_ -> return (Just enemy))
         enemyMenuItems = map getMenuItemForEnemy (enemies world)
         menuItems = enemyMenuItems ++ [Close "Don't select enemy"]
 
@@ -32,7 +32,7 @@ listTarget world = do
 
 gameMenu :: Menu.Menu World
 gameMenu = getMenu
-    [ MenuItem "Target a monster" targetEnemy
-    , MenuItem "Describe target" listTarget
+    [ LoopMenuItem "Target a monster" targetEnemy
+    , LoopMenuItem "Describe target" listTarget
     , Close "Return to main menu"
     ]
