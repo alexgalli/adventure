@@ -27,17 +27,20 @@ newWorld filename = World {
     enemies = []
 }
 
+-- stateful operations
 setDataFile :: String -> World -> World
 setDataFile filename world = world { datafile = filename }
 
 setPlayer :: Creature -> World -> World
 setPlayer creature world = world { player = Just creature }
 
-saveWorld :: World -> IO ()
+-- file I/O
+saveWorld :: World -> IO World
 saveWorld world = do
     h <- openFile (datafile world) WriteMode
     hPrint h world
     hClose h
+    return world
 
 loadWorld :: String -> IO (Maybe World)
 loadWorld filename = do
