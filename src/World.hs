@@ -3,11 +3,13 @@ module World (
     datafile,
     player,
     enemies,
+    target,
     newWorld,
     setDataFile,
     setPlayer,
     addEnemy,
     clearEnemies,
+    setTarget,
     saveWorld,
     loadWorld
 ) where
@@ -19,14 +21,16 @@ import Creature
 data World = World {
     datafile :: String,
     player   :: Maybe Creature,
-    enemies  :: [Creature]
+    enemies  :: [Creature],
+    target   :: Maybe Creature
 } deriving (Show, Read)
 
 newWorld :: String -> World
 newWorld filename = World {
     datafile = filename,
     player = Nothing,
-    enemies = []
+    enemies = [],
+    target = Nothing
 }
 
 -- stateful operations
@@ -41,6 +45,9 @@ addEnemy creature world = world { enemies = creature : enemies world }
 
 clearEnemies :: World -> World
 clearEnemies world = world { enemies = [] }
+
+setTarget :: Creature -> World -> World
+setTarget creature world = world { target = Just creature }
 
 -- file I/O
 saveWorld :: World -> IO World

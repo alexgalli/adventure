@@ -6,6 +6,7 @@ import Data.List
 import System.Directory
 
 import Creature
+import GameMenu
 import Menu
 import World
 
@@ -15,6 +16,9 @@ greet world = do
         Just p -> putStrLn $ "Hello there, " ++ name p
         Nothing -> putStrLn "Hello, stranger."
     return world
+
+enterGame :: World -> IO World
+enterGame = runMenu gameMenu
 
 setPlayerName :: World -> IO World
 setPlayerName world = do
@@ -46,6 +50,7 @@ resetData world = do
 mainMenu :: Menu.Menu World
 mainMenu = getMenu
     [ MenuItem "Greet me" greet
+    , MenuItem "Enter game" enterGame
     , MenuItem "Set player name" setPlayerName
     , MenuItem "Add a new enemy" addNewEnemy
     , MenuItem "List enemies" listEnemies
