@@ -60,7 +60,8 @@ resetData world = do
 
 mainMenu :: Menu.Menu World
 mainMenu = getMenu
-    [ ("Greet me", greet )
-    , ("Set player name", setPlayerName)
-    , ("Reset all user data", resetData)
+    [ MenuItem "Greet me" greet
+    , MenuItem "Set player name" setPlayerName
+    , MenuItem "Reset all user data" resetData
+    , Close "Exit"
     ]
