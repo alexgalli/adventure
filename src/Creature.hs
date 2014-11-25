@@ -7,7 +7,7 @@ module Creature (
 -- Creature handling
 data Creature = Creature {
     name :: String
-} deriving (Read, Show)
+} deriving (Read, Show, Eq)
 
 getName :: Bool -> IO String
 getName isPlayer = do

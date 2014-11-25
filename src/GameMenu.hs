@@ -14,30 +14,45 @@ enemyMenu world =
         enemyMenuItems = map getMenuItemForEnemy (enemies world)
         menuItems = enemyMenuItems ++ [Close "Don't select enemy"]
 
-targetEnemy :: World -> IO World
-targetEnemy world = do
-    enemy <- runMenu (enemyMenu world) Nothing
-    case enemy of
-        Just e -> do
-            putStrLn $ "Now targetting " ++ name e
-            return $ setTarget e world
-        Nothing -> return world
-
 showTarget :: World -> String
 showTarget world = 
     case target world of
         Just e -> "Currently targetting " ++ name e
         Nothing -> "Not targetting anyone"
 
+-- menu items
+targetEnemy :: World -> IO World
+targetEnemy world = do
+    enemy <- runMenu (enemyMenu world) Nothing
+    case enemy of
+        Just e -> do
+            putStrLn $ "Now targetting " ++ name e
+            return $ setTarget (Just e) world
+        Nothing -> return world
+
+
 listTarget :: World -> IO World
 listTarget world = do
+    -- TODO add Creature description
     putStrLn $ showTarget world
     return world
+
+attack :: World -> IO World
+attack world =
+    case target world of
+        Just t -> do
+            putStrLn "Attacking the target!"
+            return $ removeCreature t world
+        Nothing -> do
+            -- TODO add conditional menu showing
+            putStrLn "There's no one to attack!"
+            return world
 
 gameMenu :: Menu.Menu World
 gameMenu = getMenu
     showTarget
     [ LoopMenuItem "Target a monster" targetEnemy
     , LoopMenuItem "Describe target" listTarget
+    , LoopMenuItem "Attack" attack
     , Close "Return to main menu"
     ]

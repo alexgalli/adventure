@@ -10,6 +10,7 @@ module World (
     addEnemy,
     clearEnemies,
     setTarget,
+    removeCreature,
     saveWorld,
     loadWorld
 ) where
@@ -46,8 +47,15 @@ addEnemy creature world = world { enemies = creature : enemies world }
 clearEnemies :: World -> World
 clearEnemies world = world { enemies = [] }
 
-setTarget :: Creature -> World -> World
-setTarget creature world = world { target = Just creature }
+setTarget :: Maybe Creature -> World -> World
+setTarget creature world = world { target = creature }
+
+removeCreature :: Creature -> World -> World
+removeCreature creature world =
+    world {
+        enemies = filter (/= creature) $ enemies world,
+        target = if target world == Just creature then Nothing else target world
+    }
 
 -- file I/O
 saveWorld :: World -> IO World
