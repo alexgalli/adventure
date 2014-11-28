@@ -10,7 +10,7 @@ enemyMenu :: World -> Menu.Menu (Maybe Creature)
 enemyMenu world =
     getMenu (const "Select enemy to target") menuItems
     where
-        getMenuItemForEnemy enemy = CloseMenuItem (name enemy) (\_ -> return (Just enemy))
+        getMenuItemForEnemy enemy = CloseMenuItem (name enemy) Nothing (\_ -> return (Just enemy))
         enemyMenuItems = map getMenuItemForEnemy (enemies world)
         menuItems = enemyMenuItems ++ [Close "Don't select enemy"]
 
@@ -48,11 +48,17 @@ attack world =
             putStrLn "There's no one to attack!"
             return world
 
+showIfTargetted :: World -> Bool
+showIfTargetted world =
+    case target world of
+        Just _ -> True
+        Nothing -> False
+
 gameMenu :: Menu.Menu World
 gameMenu = getMenu
     showTarget
-    [ LoopMenuItem "Target a monster" targetEnemy
-    , LoopMenuItem "Describe target" listTarget
-    , LoopMenuItem "Attack" attack
+    [ LoopMenuItem "Target a monster" Nothing targetEnemy
+    , LoopMenuItem "Describe target" (Just showIfTargetted) listTarget
+    , LoopMenuItem "Attack" (Just showIfTargetted) attack
     , Close "Return to main menu"
     ]

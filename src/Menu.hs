@@ -9,10 +9,11 @@ import Data.List
 import Text.Read
 
 type MenuAction a = a -> IO a
+type Predicate a = a -> Bool
 
 data MenuItem a
-    = LoopMenuItem { description :: String, action :: MenuAction a}
-    | CloseMenuItem { description :: String, action :: MenuAction a}
+    = LoopMenuItem { description :: String, displayAction :: Maybe (Predicate a), action :: MenuAction a}
+    | CloseMenuItem { description :: String, displayAction :: Maybe (Predicate a), action :: MenuAction a}
     | Close { description :: String }
 
 data Menu a = Menu {
@@ -34,11 +35,23 @@ getItem (Just ix) menu
     | ix > length (items menu) = Nothing
     | otherwise = Just (snd (items menu !! (ix - 1)))
 
+filterMenu :: Menu a -> a -> Menu a 
+filterMenu menu b =
+    getMenu (showTitle menu) $ filter filterItem (map snd (items menu))
+    where
+        filterItem menuItem =
+            case menuItem of
+                Close _ -> True
+                _ -> case displayAction menuItem of
+                    Just da -> da b
+                    Nothing -> True
+
 -- user interface
 
 prompt :: Menu a -> a -> IO (MenuItem a)
-prompt menu a = do
+prompt initialMenu a = do
     putStrLn ""
+    let menu = filterMenu initialMenu a
     putStrLn $ showTitle menu a
     print menu
     let count = length (items menu)
