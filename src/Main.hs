@@ -1,3 +1,4 @@
+import AdminMenu
 import Creature
 import MainMenu
 import Menu
@@ -30,7 +31,7 @@ openingGreeting world =
             putStrLn "Welcome to Adventure!"
             -- create player and save
             playerName <- getName True
-            let p = Creature playerName
+            let p = newPlayer playerName
             saveWorld $ setPlayer p world
 
 exitAdventure :: World -> IO ()
