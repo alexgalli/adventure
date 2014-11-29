@@ -18,8 +18,8 @@ greet world = do
 mainMenu :: Menu.Menu World
 mainMenu = getMenu
     (const "Main Menu")
-    [ LoopMenuItem "Greet me" Nothing greet
-    , LoopMenuItem "Enter game" Nothing (runMenu gameMenu)
-    , LoopMenuItem "Enter admin mode" Nothing (runMenu adminMenu)
-    , Close "Exit"
+    [ LoopMenuItem 'h' "Greet me" Nothing greet
+    , LoopMenuItem 'g' "Enter game" Nothing (runMenu gameMenu)
+    , LoopMenuItem 'a' "Enter admin mode" Nothing (runMenu adminMenu)
+    , Close 'x' "Exit"
     ]

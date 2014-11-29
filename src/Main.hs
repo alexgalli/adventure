@@ -1,3 +1,5 @@
+import System.IO
+
 import AdminMenu
 import Creature
 import MainMenu

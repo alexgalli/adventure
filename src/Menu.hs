@@ -6,45 +6,53 @@ module Menu (
 ) where
 
 import Data.List
-import Text.Read
 
 type MenuAction a = a -> IO a
 type Predicate a = a -> Bool
 
+-- menu item
 data MenuItem a
-    = LoopMenuItem { description :: String, displayAction :: Maybe (Predicate a), action :: MenuAction a}
-    | CloseMenuItem { description :: String, displayAction :: Maybe (Predicate a), action :: MenuAction a}
-    | Close { description :: String }
+    = LoopMenuItem  { code :: Char, description :: String, displayAction :: Maybe (Predicate a), action :: MenuAction a}
+    | CloseMenuItem { code :: Char, description :: String, displayAction :: Maybe (Predicate a), action :: MenuAction a}
+    | Close         { code :: Char, description :: String }
+
+instance Show (MenuItem a) where
+    show menuItem = "[" ++ [code menuItem] ++ "] " ++ description menuItem
+
+filterItem :: a -> MenuItem a -> Bool
+filterItem _ (Close {}) = True
+filterItem a menuItem =
+    case displayAction menuItem of
+        Just da -> da a
+        Nothing -> True
+
+-- menu
+type TitleAction a = a -> String
 
 data Menu a = Menu {
-    showTitle :: a -> String,
-    items :: [(Integer, MenuItem a)]
+    showTitle :: TitleAction a,
+    items :: [MenuItem a]
 }
 
 instance Show (Menu a) where
-    show menu = intercalate "\n" $ map showItem (items menu)
-        where showItem (ix, item) = show ix ++ ". " ++ description item
+    show menu = intercalate "\n" $ map show (items menu)
 
-getMenu :: (a -> String) -> [MenuItem a] -> Menu a
-getMenu st i = Menu st $ zip [1..] i
+getMenu :: TitleAction a -> [MenuItem a] -> Menu a
+getMenu titleAction menuItems
+    | null menuItems                                          = Menu titleAction [Close 'x' "Exit"]
+    | length menuItems /= (length . nub $ map code menuItems) = error "Duplicate menu item codes in your menu"
+    | otherwise                                               = Menu titleAction menuItems
 
-getItem :: Maybe Int -> Menu a -> Maybe (MenuItem a)
-getItem Nothing _ = Nothing
-getItem (Just ix) menu
-    | ix <= 0 = Nothing
-    | ix > length (items menu) = Nothing
-    | otherwise = Just (snd (items menu !! (ix - 1)))
+getItem :: Char -> Menu a -> Maybe (MenuItem a)
+getItem c menu =
+    if null matchingItems
+        then Nothing
+        else Just (head matchingItems)
+    where matchingItems = filter (\menuItem -> c == code menuItem) (items menu)
 
 filterMenu :: Menu a -> a -> Menu a 
-filterMenu menu b =
-    getMenu (showTitle menu) $ filter filterItem (map snd (items menu))
-    where
-        filterItem menuItem =
-            case menuItem of
-                Close _ -> True
-                _ -> case displayAction menuItem of
-                    Just da -> da b
-                    Nothing -> True
+filterMenu menu a =
+    getMenu (showTitle menu) $ filter (filterItem a) (items menu)
 
 -- user interface
 
@@ -54,15 +62,12 @@ prompt initialMenu a = do
     let menu = filterMenu initialMenu a
     putStrLn $ showTitle menu a
     print menu
-    let count = length (items menu)
-    if count > 1
-        then putStr $ "Choose [1-" ++ show count ++ "]: "
-        else putStr "Choose [1]: "
+    putStr $ "Choose [" ++ map code (items menu)  ++ "]: "
     input <- getLine
-    case getItem (readMaybe input) menu of
+    case getItem (head input) menu of
         Just item -> return item
         Nothing -> do
-            putStrLn $ "'" ++ input ++ "' is not a valid selection."
+            putStrLn $ "'" ++ [head input] ++ "' is not a valid selection."
             prompt menu a
 
 runMenu :: Menu a -> a -> IO a
