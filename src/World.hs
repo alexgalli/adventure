@@ -18,6 +18,7 @@ module World (
 import System.Directory
 import System.IO
 import Creature
+import File
 
 data World = World {
     datafile :: String,
@@ -59,20 +60,7 @@ removeCreature creature world =
 
 -- file I/O
 saveWorld :: World -> IO World
-saveWorld world = do
-    h <- openFile (datafile world) WriteMode
-    hPrint h world
-    hClose h
-    return world
+saveWorld world = save (datafile world) world
 
 loadWorld :: String -> IO (Maybe World)
-loadWorld filename = do
-    isFile <- doesFileExist filename
-    if isFile
-        then do
-            hdl <- openFile filename ReadMode
-            contents <- hGetLine hdl
-            hClose hdl
-            return $ Just (read contents)
-        else
-            return Nothing
+loadWorld filename = load filename
