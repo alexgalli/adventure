@@ -1,5 +1,7 @@
 module Creature (
     Creature(Creature),
+    CreatureTemplate(CreatureTemplate),
+    newCreature,
     name,
     description,
     hp,
@@ -13,3 +15,17 @@ data Creature = Creature {
     hp :: Int,
     maxHp :: Int
 } deriving (Read, Show, Eq)
+
+data CreatureTemplate = CreatureTemplate {
+    tName :: String,
+    tDescription :: String,
+    tMaxHp :: Int
+} deriving (Read, Show, Eq)
+
+newCreature :: CreatureTemplate -> Creature
+newCreature template = Creature {
+    name = tName template,
+    description = tDescription template,
+    hp = tMaxHp template,
+    maxHp = tMaxHp template
+}
