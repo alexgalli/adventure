@@ -64,11 +64,14 @@ prompt initialMenu a = do
     print menu
     putStr $ "Choose [" ++ map code (items menu)  ++ "]: "
     input <- getLine
-    case getItem (head input) menu of
-        Just item -> return item
-        Nothing -> do
-            putStrLn $ "'" ++ [head input] ++ "' is not a valid selection."
-            prompt menu a
+    if null input
+        then prompt menu a
+        else 
+            case getItem (head input) menu of
+                Just item -> return item
+                Nothing -> do
+                    putStrLn $ "'" ++ [head input] ++ "' is not a valid selection."
+                    prompt menu a
 
 runMenu :: Menu a -> a -> IO a
 runMenu menu a = do
