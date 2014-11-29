@@ -2,6 +2,8 @@ module GameMenu (
     gameMenu
 ) where
 
+import Data.Char
+
 import Creature
 import Menu
 import World
@@ -10,9 +12,12 @@ enemyMenu :: World -> Menu.Menu (Maybe Creature)
 enemyMenu world =
     getMenu (const "Select enemy to target") menuItems
     where
-        getMenuItemForEnemy enemy = CloseMenuItem (name enemy) Nothing (\_ -> return (Just enemy))
-        enemyMenuItems = map getMenuItemForEnemy (enemies world)
-        menuItems = enemyMenuItems ++ [Close "Don't select enemy"]
+        -- [a-z] -x, [A-Z] -X
+        characterOptions = map chr ([97..119] ++ [121, 122] ++ [65..87] ++ [89, 90])
+        enemiesWithCodes = zip characterOptions (enemies world)
+        getMenuItemForEnemy (c, enemy) = CloseMenuItem c (name enemy) Nothing (\_ -> return (Just enemy))
+        enemyMenuItems = map getMenuItemForEnemy enemiesWithCodes
+        menuItems = enemyMenuItems ++ [Close 'x' "Don't target enemy"]
 
 showTarget :: World -> String
 showTarget world = 
@@ -29,7 +34,6 @@ targetEnemy world = do
             putStrLn $ "Now targetting " ++ name e
             return $ setTarget (Just e) world
         Nothing -> return world
-
 
 listTarget :: World -> IO World
 listTarget world = do
@@ -57,8 +61,8 @@ showIfTargetted world =
 gameMenu :: Menu.Menu World
 gameMenu = getMenu
     showTarget
-    [ LoopMenuItem "Target a monster" Nothing targetEnemy
-    , LoopMenuItem "Describe target" (Just showIfTargetted) listTarget
-    , LoopMenuItem "Attack" (Just showIfTargetted) attack
-    , Close "Return to main menu"
+    [ LoopMenuItem 't' "Target a monster" Nothing targetEnemy
+    , LoopMenuItem 'd' "Describe target" (Just showIfTargetted) listTarget
+    , LoopMenuItem 'a' "Attack" (Just showIfTargetted) attack
+    , Close 'x' "Return to main menu"
     ]
