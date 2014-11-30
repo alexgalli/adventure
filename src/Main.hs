@@ -32,7 +32,7 @@ openingGreeting world =
         Nothing -> do
             putStrLn "Welcome to Adventure!"
             -- create player and save
-            playerName <- getName True
+            playerName <- getName
             let p = newPlayer playerName
             saveWorld $ setPlayer p world
 

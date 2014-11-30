@@ -8,19 +8,18 @@ import Data.List
 import System.Directory
 
 import Creature
+import Library
 import Menu
 import World
 
-getName :: Bool -> IO String
-getName isPlayer = do
-    if isPlayer
-        then putStr "What is your name? "
-        else putStr "What is the name of this creature? "
+getName :: IO String
+getName = do
+    putStr "What is your name? "
     getLine
 
 setPlayerName :: World -> IO World
 setPlayerName world = do
-    playerName <- getName True
+    playerName <- getName
     case player world of
         Just p -> return $ setPlayer (p { name = playerName }) world
         Nothing -> return $ setPlayer (newPlayer playerName) world
@@ -28,13 +27,14 @@ setPlayerName world = do
 newPlayer :: String -> Creature
 newPlayer n = Creature n "It's you!" 100 100
 
-newEnemy :: String -> Creature
-newEnemy n = Creature n "A horrifying monster!" 25 25
-
 addNewEnemy :: World -> IO World
 addNewEnemy world = do
-    enemyName <- getName False
-    return $ addEnemy (newEnemy enemyName) world
+    maybeTemplate <- runMenu (getListMenu (templates (library world)) tName "Select a creature to add") Nothing
+    case maybeTemplate of
+        Just t -> do
+            putStrLn $ "Creating a new " ++ tName t
+            return $ addEnemy (newCreature t) world
+        Nothing -> return world
 
 listEnemies :: World -> IO World
 listEnemies world = do
