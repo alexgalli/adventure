@@ -5,10 +5,12 @@ module Creature (
     name,
     description,
     hp,
-    maxHp
+    maxHp,
+    tName,
+    tDescription,
+    tMaxHp
 ) where
 
--- Creature handling
 data Creature = Creature {
     name :: String,
     description :: String,

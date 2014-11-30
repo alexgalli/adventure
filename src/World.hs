@@ -1,6 +1,7 @@
 module World (
     World,
     datafile,
+    library,
     player,
     enemies,
     target,
@@ -15,13 +16,13 @@ module World (
     loadWorld
 ) where
 
-import System.Directory
-import System.IO
 import Creature
 import File
+import Library
 
 data World = World {
     datafile :: String,
+    library  :: Library,
     player   :: Maybe Creature,
     enemies  :: [Creature],
     target   :: Maybe Creature
@@ -30,6 +31,7 @@ data World = World {
 newWorld :: String -> World
 newWorld filename = World {
     datafile = filename,
+    library = monsterLibrary,
     player = Nothing,
     enemies = [],
     target = Nothing
@@ -63,4 +65,4 @@ saveWorld :: World -> IO World
 saveWorld world = save (datafile world) world
 
 loadWorld :: String -> IO (Maybe World)
-loadWorld filename = load filename
+loadWorld = load 
