@@ -1,6 +1,8 @@
 module Library (
     Library(Library),
     templates,
+    addTemplate,
+    checkName,
     monsterLibrary
 ) where
 
@@ -9,6 +11,15 @@ import Creature
 data Library = Library {
     templates :: [CreatureTemplate]
 } deriving (Show, Read, Eq)
+
+checkName :: Library -> String -> Bool
+checkName library n =
+    not $ any (\t -> tName t == n) (templates library)
+
+addTemplate :: Library -> CreatureTemplate -> Library
+addTemplate library t = library {
+    templates = t : templates library
+} 
 
 monsterLibrary :: Library
 monsterLibrary = Library
