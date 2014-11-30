@@ -2,22 +2,14 @@ module GameMenu (
     gameMenu
 ) where
 
-import Data.Char
-
 import Creature
 import Menu
 import World
 
+-- TODO refactor to use getListMenu
 enemyMenu :: World -> Menu.Menu (Maybe Creature)
 enemyMenu world =
-    getMenu (const "Select enemy to target") menuItems
-    where
-        -- [a-z] -x, [A-Z] -X
-        characterOptions = map chr ([97..119] ++ [121, 122] ++ [65..87] ++ [89, 90])
-        enemiesWithCodes = zip characterOptions (enemies world)
-        getMenuItemForEnemy (c, enemy) = CloseMenuItem c (name enemy) Nothing (\_ -> return (Just enemy))
-        enemyMenuItems = map getMenuItemForEnemy enemiesWithCodes
-        menuItems = enemyMenuItems ++ [Close 'x' "Don't target enemy"]
+    getListMenu (enemies world) name "Select enemy to target"
 
 showTarget :: World -> String
 showTarget world = 

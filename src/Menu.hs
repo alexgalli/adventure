@@ -2,9 +2,11 @@ module Menu (
     Menu,
     MenuItem(LoopMenuItem, CloseMenuItem, Close),
     getMenu,
-    runMenu
+    runMenu,
+    getListMenu
 ) where
 
+import Data.Char
 import Data.List
 
 type MenuAction a = a -> IO a
@@ -83,3 +85,14 @@ runMenu menu a = do
             runMenu menu b
         CloseMenuItem {} -> action item a
         Close {} -> return a
+
+-- generic list menu
+getListMenu :: [a] -> (a -> String) -> String -> Menu.Menu (Maybe a)
+getListMenu listItems getLabel title =
+    getMenu (const title) menuItems
+    where
+        -- [a-z] -x, [A-Z] -X
+        characterOptions = map chr ([97..119] ++ [121, 122] ++ [65..87] ++ [89, 90])
+        itemsWithCodes = zip characterOptions listItems
+        getMenuItem (c, i) = CloseMenuItem c (getLabel i) Nothing (\_ -> return (Just i))
+        menuItems = (map getMenuItem itemsWithCodes) ++ [Close 'x' "Don't target enemy"]
