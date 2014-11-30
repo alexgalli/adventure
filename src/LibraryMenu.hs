@@ -2,12 +2,13 @@ module LibraryMenu (
     libraryMenu
 ) where
 
+import Creature
 import Library
 import Menu
 
 listAllMonsters :: Library -> IO Library
 listAllMonsters library = do
-    print library
+    mapM_ (putStrLn . showCreatureTemplate) (templates library)
     return library
 
 libraryMenu :: Menu Library

@@ -8,8 +8,11 @@ module Creature (
     maxHp,
     tName,
     tDescription,
-    tMaxHp
+    tMaxHp,
+    showCreatureTemplate
 ) where
+
+import Text.Printf
 
 data Creature = Creature {
     name :: String,
@@ -31,3 +34,6 @@ newCreature template = Creature {
     hp = tMaxHp template,
     maxHp = tMaxHp template
 }
+
+showCreatureTemplate :: CreatureTemplate -> String
+showCreatureTemplate template = printf "Name: %-20s  Description: %-65s  HP: %-4d" (tName template) (tDescription template) (tMaxHp template)

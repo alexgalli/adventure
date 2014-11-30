@@ -1,11 +1,14 @@
 module Library (
-    Library,
+    Library(Library),
+    templates,
     monsterLibrary
 ) where
 
 import Creature
 
-data Library = Library [CreatureTemplate] deriving (Show, Read, Eq)
+data Library = Library {
+    templates :: [CreatureTemplate]
+} deriving (Show, Read, Eq)
 
 monsterLibrary :: Library
 monsterLibrary = Library
