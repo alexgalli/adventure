@@ -42,7 +42,7 @@ listEnemies world = do
     return world
 
 clearAllEnemies :: World -> IO World
-clearAllEnemies world = return $ clearEnemies world
+clearAllEnemies world = return $ setTarget Nothing $ clearEnemies world
 
 resetData :: World -> IO World
 resetData world = do
