@@ -3,7 +3,8 @@ module Creature (
     CreatureFile(CreatureFile),
     CreatureTemplate(CreatureTemplate),
     newCreature,
-    newCreatureFile,
+    toCreature,
+    toCreatureFile,
     name,
     description,
     hp,
@@ -48,8 +49,16 @@ newCreature template = Creature {
     maxHp = tMaxHp template
 }
 
-newCreatureFile :: Creature -> CreatureFile
-newCreatureFile creature = CreatureFile {
+toCreature :: CreatureFile -> Creature
+toCreature creatureFile = Creature {
+    name = fName creatureFile,
+    description = fDescription creatureFile,
+    hp = fHp creatureFile,
+    maxHp = fMaxHp creatureFile
+}
+
+toCreatureFile :: Creature -> CreatureFile
+toCreatureFile creature = CreatureFile {
     fName = name creature,
     fDescription = description creature,
     fHp = hp creature,

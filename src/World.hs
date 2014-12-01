@@ -16,6 +16,8 @@ module World (
     loadWorld
 ) where
 
+import Control.Applicative
+
 import Creature
 import File
 import Library
@@ -40,27 +42,27 @@ newWorld filename = World {
 data WorldFile = WorldFile {
     fDatafile :: String,
     fLibrary  :: Library,
-    fPlayer   :: Maybe Creature,
-    fEnemies  :: [Creature],
-    fTarget   :: Maybe Creature
+    fPlayer   :: Maybe CreatureFile,
+    fEnemies  :: [CreatureFile],
+    fTarget   :: Maybe CreatureFile
 } deriving (Show, Read)
 
 toWorld :: WorldFile -> World
 toWorld worldFile = World {
     datafile = fDatafile worldFile,
     library = fLibrary worldFile,
-    player = fPlayer worldFile,
-    enemies = fEnemies worldFile,
-    target = fTarget worldFile    
+    player = toCreature <$> fPlayer worldFile,
+    enemies = map toCreature $ fEnemies worldFile,
+    target = toCreature <$> fTarget worldFile    
 }
 
 toWorldFile :: World -> WorldFile
 toWorldFile world = WorldFile {
     fDatafile = datafile world,
     fLibrary = library world,
-    fPlayer = player world,
-    fEnemies = enemies world,
-    fTarget = target world
+    fPlayer = toCreatureFile <$> player world,
+    fEnemies = map toCreatureFile $ enemies world,
+    fTarget = toCreatureFile <$> target world
 }
 
 -- stateful operations
