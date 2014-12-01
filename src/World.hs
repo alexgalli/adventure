@@ -37,6 +37,32 @@ newWorld filename = World {
     target = Nothing
 }
 
+data WorldFile = WorldFile {
+    fDatafile :: String,
+    fLibrary  :: Library,
+    fPlayer   :: Maybe Creature,
+    fEnemies  :: [Creature],
+    fTarget   :: Maybe Creature
+} deriving (Show, Read)
+
+toWorld :: WorldFile -> World
+toWorld worldFile = World {
+    datafile = fDatafile worldFile,
+    library = fLibrary worldFile,
+    player = fPlayer worldFile,
+    enemies = fEnemies worldFile,
+    target = fTarget worldFile    
+}
+
+toWorldFile :: World -> WorldFile
+toWorldFile world = WorldFile {
+    fDatafile = datafile world,
+    fLibrary = library world,
+    fPlayer = player world,
+    fEnemies = enemies world,
+    fTarget = target world
+}
+
 -- stateful operations
 setDataFile :: String -> World -> World
 setDataFile filename world = world { datafile = filename }
@@ -62,7 +88,13 @@ removeCreature creature world =
 
 -- file I/O
 saveWorld :: World -> IO World
-saveWorld world = save (datafile world) world
+saveWorld world = do
+    save (datafile world) (toWorldFile world)
+    return world
 
 loadWorld :: String -> IO (Maybe World)
-loadWorld = load 
+loadWorld filename = do
+    worldFile <- load filename :: IO (Maybe WorldFile)
+    case worldFile of
+        Just wf -> return $ Just $ toWorld wf
+        Nothing -> return Nothing
