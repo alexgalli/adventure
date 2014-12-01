@@ -22,10 +22,13 @@ setPlayerName world = do
     playerName <- getName
     case player world of
         Just p -> return $ setPlayer (p { name = playerName }) world
-        Nothing -> return $ setPlayer (newPlayer playerName) world
+        Nothing -> do
+            p <- newPlayer playerName
+            return $ setPlayer p world
 
-newPlayer :: String -> Creature
-newPlayer n = Creature n "It's you!" 100 100
+newPlayer :: String -> IO Creature
+newPlayer n =
+    newCreature $ playerTemplate { tName = n }
 
 addNewEnemy :: World -> IO World
 addNewEnemy world = do
@@ -33,7 +36,8 @@ addNewEnemy world = do
     case maybeTemplate of
         Just t -> do
             putStrLn $ "Creating a new " ++ tName t
-            return $ addEnemy (newCreature t) world
+            e <- newCreature t
+            return $ addEnemy e world
         Nothing -> return world
 
 listEnemies :: World -> IO World

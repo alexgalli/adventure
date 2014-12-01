@@ -33,7 +33,7 @@ openingGreeting world =
             putStrLn "Welcome to Adventure!"
             -- create player and save
             playerName <- getName
-            let p = newPlayer playerName
+            p <- newPlayer playerName
             saveWorld $ setPlayer p world
 
 exitAdventure :: World -> IO ()

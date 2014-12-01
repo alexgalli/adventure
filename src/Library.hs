@@ -3,6 +3,7 @@ module Library (
     templates,
     addTemplate,
     checkName,
+    playerTemplate,
     monsterLibrary
 ) where
 
@@ -20,6 +21,13 @@ addTemplate :: Library -> CreatureTemplate -> Library
 addTemplate library t = library {
     templates = t : templates library
 } 
+
+playerTemplate :: CreatureTemplate
+playerTemplate = CreatureTemplate {
+    tName = "Player",
+    tDescription = "A mighty adventurer!",
+    tMaxHp = 100
+}
 
 monsterLibrary :: Library
 monsterLibrary = Library

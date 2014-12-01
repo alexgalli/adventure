@@ -5,6 +5,7 @@ module Creature (
     newCreature,
     toCreature,
     toCreatureFile,
+    index,
     name,
     description,
     hp,
@@ -19,14 +20,19 @@ module Creature (
     showCreatureTemplate
 ) where
 
+import Data.Unique
 import Text.Printf
 
 data Creature = Creature {
+    index :: Unique,
     name :: String,
     description :: String,
     hp :: Int,
     maxHp :: Int
-} deriving (Read, Show, Eq)
+}
+
+instance Eq Creature where
+    (==) c1 c2 = index c1 == index c2
 
 data CreatureFile = CreatureFile {
     fName :: String,
@@ -41,21 +47,27 @@ data CreatureTemplate = CreatureTemplate {
     tMaxHp :: Int
 } deriving (Read, Show, Eq)
 
-newCreature :: CreatureTemplate -> Creature
-newCreature template = Creature {
-    name = tName template,
-    description = tDescription template,
-    hp = tMaxHp template,
-    maxHp = tMaxHp template
-}
+newCreature :: CreatureTemplate -> IO Creature
+newCreature template = do
+    u <- newUnique
+    return Creature {
+        index = u,
+        name = tName template,
+        description = tDescription template,
+        hp = tMaxHp template,
+        maxHp = tMaxHp template
+    }
 
-toCreature :: CreatureFile -> Creature
-toCreature creatureFile = Creature {
-    name = fName creatureFile,
-    description = fDescription creatureFile,
-    hp = fHp creatureFile,
-    maxHp = fMaxHp creatureFile
-}
+toCreature :: CreatureFile -> IO Creature
+toCreature creatureFile = do
+    u <- newUnique
+    return Creature {
+        index = u,
+        name = fName creatureFile,
+        description = fDescription creatureFile,
+        hp = fHp creatureFile,
+        maxHp = fMaxHp creatureFile
+    }
 
 toCreatureFile :: Creature -> CreatureFile
 toCreatureFile creature = CreatureFile {

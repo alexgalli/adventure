@@ -28,7 +28,7 @@ data World = World {
     player   :: Maybe Creature,
     enemies  :: [Creature],
     target   :: Maybe Creature
-} deriving (Show, Read)
+}
 
 newWorld :: String -> World
 newWorld filename = World {
@@ -47,14 +47,23 @@ data WorldFile = WorldFile {
     fTarget   :: Maybe CreatureFile
 } deriving (Show, Read)
 
-toWorld :: WorldFile -> World
-toWorld worldFile = World {
-    datafile = fDatafile worldFile,
-    library = fLibrary worldFile,
-    player = toCreature <$> fPlayer worldFile,
-    enemies = map toCreature $ fEnemies worldFile,
-    target = toCreature <$> fTarget worldFile    
-}
+toWorld :: WorldFile -> IO World
+toWorld worldFile = do
+    -- TODO gotta figure out nested applicatives
+    p <- case fPlayer worldFile of
+        Just fp -> Just <$> toCreature fp
+        Nothing -> return Nothing
+    es <- mapM toCreature $ fEnemies worldFile
+    t <- case fTarget worldFile of
+        Just ft -> Just <$> toCreature ft
+        Nothing -> return Nothing
+    return World {
+        datafile = fDatafile worldFile,
+        library = fLibrary worldFile,
+        player = p,
+        enemies = es,
+        target = t
+    }
 
 toWorldFile :: World -> WorldFile
 toWorldFile world = WorldFile {
@@ -98,5 +107,5 @@ loadWorld :: String -> IO (Maybe World)
 loadWorld filename = do
     worldFile <- load filename :: IO (Maybe WorldFile)
     case worldFile of
-        Just wf -> return $ Just $ toWorld wf
+        Just wf -> Just <$> toWorld wf
         Nothing -> return Nothing
