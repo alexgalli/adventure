@@ -1,0 +1,3 @@
+# adventure
+
+Building an adventure game as an experiment for learning Haskell.  Abandoned accordingly...
